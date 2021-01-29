@@ -15,7 +15,7 @@ gem 'uglifier', '>= 4.2.0'
 # gem 'mini_racer', platforms: :ruby
 
 # Use jquery as the JavaScript library
-gem 'jquery-rails', '>= 4.3.5'
+# gem 'jquery-rails', '>= 4.3.5'
 # Use CoffeeScript for .coffee assets and views
 gem 'coffee-rails', '~> 5.0'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
@@ -43,7 +43,7 @@ gem 'aws-sdk', '~> 3.0'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.6', require: false
 
-gem 'webpacker'
+gem 'webpacker', '~> 6.0.0.pre.2'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

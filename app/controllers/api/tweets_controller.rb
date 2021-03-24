@@ -6,15 +6,21 @@ module Api
         end
     
         def create
-        token = cookies.signed[:twitter_session_token]
-        session = Session.find_by(token: token)
-        user = session.user
-        @tweet = user.tweets.new(tweet_params)
-    
-        if @tweet.save
-            #TweetMailer.notify(@tweet).deliver!
-            render 'tweets/create'
-        end
+            token = cookies.signed[:twitter_session_token]
+            session = Session.find_by(token: token)
+            user = session.user
+            @tweet = user.tweets.new(tweet_params)
+            
+            if params[:tweet][:image]
+                @tweet.image.attach(params[:tweet][:image])
+            end 
+
+            if @tweet.save
+                #TweetMailer.notify(@tweet).deliver!
+                render 'tweets/create'
+            else 
+                return render json: { success: false, message: @tweet } 
+            end
         end
     
         def destroy

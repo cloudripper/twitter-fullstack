@@ -144,6 +144,15 @@ body.feeds.index {
   }
 }
 
+.tweetImage {
+  border-radius: 10px !important;
+  max-width: 200px !important; 
+  max-height: 132px !important; 
+  object-fit: cover !important;
+  object-position: 50% 50% !important; 
+  border: 1px solid #1b367073 !important;
+}
+
 .post-char-counter {
   margin-right: 10px;
   color: #8899a6;

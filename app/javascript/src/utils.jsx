@@ -1,4 +1,4 @@
-import { safeCredentials, handleErrors } from './utils/fetchHelper';
+import { safeCredentials, safeImgCredentials, handleErrors } from './utils/fetchHelper';
 import React from 'react';
 
 
@@ -90,12 +90,12 @@ export async function delTweet(id) {
 
 // POST tweet
 export async function postTweet(data) {
+    console.log(data)
     const apiRequest = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: data,
     }
-    return await fetch('/api/tweets', safeCredentials(apiRequest))
+    return await fetch('/api/tweets', safeImgCredentials(apiRequest))
     .then(response => response.json()).catch(error => handleErrors(error))   
 }
 

@@ -46,3 +46,12 @@ export function jsonHeader(options = {}) {
     }
     return response.json();
   }
+
+  
+  export function safeImgCredentials(options = {}) {
+    return Object.assign(options, {
+      credentials: 'include',
+      mode: 'same-origin',
+      headers: Object.assign(authenticityHeader()),
+    });
+  }

@@ -19,7 +19,9 @@ export const Feed = (props) => {
   const [ tweetLength, setTweetLength ] = useState(140)
   const [ sideUser, setSideUser ] = useState(user)
   const [ sideUserId, setSideUserId ] = useState(userId)
-
+  const [ fileName, setFileName ]  = useState(null)
+  const [ imgPreview, setImgPreview ]  = useState(null)
+  const [ imgFile, setImgFile ]  = useState(null)
    
   useEffect(() => {
     getFeed() //Fetching all tweets from database on mount
@@ -54,13 +56,13 @@ export const Feed = (props) => {
               <NavLink to="/feed" exact activeClassName="d-none"  ><li> All Tweets </li></NavLink>
               <NavLink to={{ pathname: `/feed/user/${userId}`, state: { user: props.user, id: userId }}} activeClassName="d-none" ><li >{user}</li></NavLink>
               <li role="presentation" className="dropdown-divider"></li>
-              <li disabled><a href="#">Lists</a></li>
+              <li><a disabled href="#">Lists</a></li>
               <li role="presentation" className="dropdown-divider"></li>
-              <li disabled><a href="#">Help</a></li>
+              <li><a disabled href="#">Help</a></li>
               <li role="presentation" className="dropdown-divider"></li>
-              <li disabled><a href="#">Keyboard shortcuts</a></li>
+              <li><a disabled href="#">Keyboard shortcuts</a></li>
               <li role="presentation" className="dropdown-divider"></li>
-              <li disabled><a href="#">Settings</a></li>
+              <li><a disabled href="#">Settings</a></li>
               <li role="presentation" className="dropdown-divider"></li>
               <li ><a id="log-out" href="#" onClick={props.logout}>Log out</a></li>
             </ul>
@@ -132,11 +134,23 @@ export const Feed = (props) => {
   // POST new tweet and GET full updated list of all tweets from db
   const handleTweet = async (e) => { 
     e.preventDefault()
+    console.log(e.target)
+    let file = null
+    const form = e.target
+    //let data = {}
+    const formData = new FormData()
+    if (e.target[1].files.length > 0) {
+      const imageFile = form[1].files[0]  
+      formData.append('tweet[image]', imageFile, imageFile.name)
+    }
     if (e.target[0].value) {
-      const data = { message: e.target[0].value }
+      //data['message'] = e.target[0].value
+      formData.append('tweet[message]', e.target[0].value)
       e.target[0].value = null
+      setFileName(null)
       setTweetLength(140)
-      await postTweet(data)
+      setImgPreview(null)
+      await postTweet(formData)
       await getFeed()
     }
   }
@@ -150,7 +164,9 @@ export const Feed = (props) => {
 
   // Process Tweet Feed
   const LoadTweets = () => {
-      
+    
+
+
     //Reset SIDEBAR User to Logged-in User on Mount of LoadTweets
     useEffect(() => { 
       setSideUser(user)
@@ -171,13 +187,41 @@ export const Feed = (props) => {
                 <Link className="tweet-username" to={{ pathname: `/feed/user/${tweet.id}`, state: { user: tweet.username, id: tweet.id }}}>{tweet.username}</Link>
                 <Link className="ml-2 tweet-screenName" to={{ pathname: `/feed/user/${tweet.id}`, state: { user: tweet.username, id: tweet.id }}}>@{tweet.username}</Link>
                 <div className="d-flex"> 
-                  <p className="pt-2">{tweet.message}</p>
+                  <div className="flex-column">
+                    <p className="pt-2">{tweet.message}</p>
+                    {(tweet.image) ? <p className="pt-2 imageCont"><img className="tweetImage" src={tweet.image}/></p> : null}
+                  </div>
                   {deleteButton}
                 </div>
               </div>)
       })
     } else {
       return <p>Loading</p>
+    }
+  }
+
+  
+  function imgReader(img) {
+    const reader = new FileReader()
+    reader.addEventListener("load", function () {
+      setImgPreview(<img className="pr-2" id="image-preview" src={reader.result} alt="image preview" />)
+    }, false);
+    reader.readAsDataURL(img)
+  }
+  
+  async function handleFileInput(e) {
+    const file = e.currentTarget.files
+    console.log(e.currentTarget.files)
+    if (file.length > 0) {
+      if (file[0].size > 2000000) {
+        setFileName(<p className="mr-2 my-0 font-italic"><small>File too large. Max File Size is 2MB</small></p>)
+      } else {
+        imgReader(file[0])
+        setFileName(<p className="mr-2 my-0 font-italic"><small>{file[0].name}</small></p>)
+        
+      }
+    } else {
+      setFileName(null)
     }
   }
 
@@ -206,9 +250,13 @@ export const Feed = (props) => {
                   <div className="col-10 post-tweet-box">
                     <textarea type="text" className="form-control post-input" rows="3" onChange={charCount} maxLength="140" placeholder="What's happening?"></textarea>
                     <div className="d-flex align-items-center">
-                      <label className="ml-auto mb-0" id="upload-image-btn" >Upload image</label>
-                      <img className="d-none" id="image-preview" src="" alt="image preview" />
-                      <input type="file" id="image-select" name="image" accept="image/*" />
+                      <div className="form-group ml-auto d-flex flex-row">
+                        {fileName}
+                        {imgPreview}
+                        <label className="mb-0" id="upload-image-btn" type="button" >Upload image
+                          <input onChange={handleFileInput} type="file" className="form-control" id="image-select" name="image" accept="image/*" />
+                        </label>
+                      </div>
                       <span className="post-char-counter ml-1">{tweetLength}</span>
                       <button className="btn btn-primary" id="post-tweet-btn">Tweet</button>
                     </div>
